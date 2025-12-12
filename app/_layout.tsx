@@ -42,7 +42,10 @@ export default function RootLayout() {
           name="scanscreen/escanear_paso_dos"
           options={{ title: "Confirmar Chip" }}
         />
-        <Stack.Screen name="existencia" options={{ title: "Existencias" }} />
+        <Stack.Screen
+          name="existencia/existencia"
+          options={{ title: "Existencias" }}
+        />
         <Stack.Screen name="planillas" options={{ title: "Planillas" }} />
         <Stack.Screen
           name="configuracion"

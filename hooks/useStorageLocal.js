@@ -1,5 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// 5 tipos planillas
+// planilla de existencia
+// carga de manera inidividual los chips que se van a usar
+// planilla de vacunacion 
+// esta planilla puede repetir chips pero se difrencia por la vacuna aplicada, fecha, lote, etc
+// planilla de sangrado
+// puede repetir chips pero se difrencia por la fecha y hora del sangrado
+// planilla de IATF
+// planilla de diagnostico
+
+
+
 const useStorageLocal = () => {
 
     const storeDataString = async (keyString, value) => {
