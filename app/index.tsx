@@ -1,10 +1,74 @@
+import ModalScanchip from "@/components/ScanComponent/ModalScanchip";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import useEnable from "@/hooks/useEnable";
 import { useRouter } from "expo-router";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { BleManager } from "react-native-ble-plx";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { isConnectedToBluetooth } = useEnable();
+  const [showModal, setShowModal] = useState(false);
+  const [bleManager] = useState(() => new BleManager());
+
+  useEffect(() => {
+    return () => {
+      bleManager.destroy();
+    };
+  }, []);
+
+  const handleOpenScanner = () => {
+    if (isConnectedToBluetooth) {
+      Alert.alert(
+        "Bluetooth desactivado",
+        "Para escanear chips necesitas activar el Bluetooth. ¿Deseas activarlo ahora?",
+        [
+          {
+            text: "Cancelar",
+            style: "cancel",
+          },
+          {
+            text: "Activar",
+            onPress: async () => {
+              if (Platform.OS === "android") {
+                try {
+                  await bleManager.enable();
+                  setTimeout(() => {
+                    setShowModal(true);
+                  }, 1000);
+                } catch (error) {
+                  console.error("Error al activar Bluetooth:", error);
+                  Alert.alert(
+                    "Error",
+                    "No se pudo activar el Bluetooth. Por favor, actívalo manualmente desde Configuración."
+                  );
+                }
+              } else {
+                Alert.alert(
+                  "Configuración",
+                  "Por favor, activa el Bluetooth desde Configuración de iOS."
+                );
+              }
+            },
+          },
+        ]
+      );
+    } else {
+      setShowModal(true);
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -14,10 +78,7 @@ export default function HomeScreen() {
 
       <View style={styles.buttonContainer}>
         <View style={styles.rowContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push("/escanear")}
-          >
+          <TouchableOpacity style={styles.button} onPress={handleOpenScanner}>
             <ThemedText style={styles.buttonText}>ESCANEAR</ThemedText>
           </TouchableOpacity>
 
@@ -43,6 +104,12 @@ export default function HomeScreen() {
           <ThemedText style={styles.buttonText}>CONFIGURACIÓN</ThemedText>
         </TouchableOpacity>
       </View>
+
+      <ModalScanchip
+        showModal={showModal}
+        closeModal={closeModal}
+        idPlanilla={`PLAN-${Date.now()}`}
+      />
     </ThemedView>
   );
 }
