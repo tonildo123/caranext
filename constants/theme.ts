@@ -51,3 +51,10 @@ export const Fonts = Platform.select({
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
+
+export const COLOR_NARANJA = '#f37c04';
+export const COLOR_NARANJA_OSCURO = "#E5533D";
+export const COLOR_BLANCO = "#FFFFFF";
+export const COLOR_ROJO_TEXTO = "#E04B4B";
+export const COLOR_GRIS_ICONO = "#4A4A4A";
+export const COLOR_ROJO_CORTE = '#E5533D';
