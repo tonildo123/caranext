@@ -1,27 +1,23 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { COLOR_BLANCO, COLOR_NARANJA } from "@/constants/theme";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { Image, View } from "react-native";
 import "react-native-reanimated";
 
-import { COLOR_BLANCO, COLOR_NARANJA } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { Image, View } from "react-native";
-
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <>
       <Stack
         screenOptions={{
           headerRight: () => (
             <Image
               source={require("../assets/images/logo-caranext3.png")}
-              style={{ width: 40, height: 40, resizeMode: "contain", marginRight: 5 }}
+              style={{
+                width: 40,
+                height: 40,
+                resizeMode: "contain",
+                marginRight: 5,
+              }}
             />
           ),
           headerShadowVisible: false,
@@ -38,7 +34,14 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="escanear" options={{ title: "Escanear" }} />
+        <Stack.Screen
+          name="scanscreen/escanear"
+          options={{ title: "Escanear" }}
+        />
+        <Stack.Screen
+          name="scanscreen/escanear_paso_dos"
+          options={{ title: "Confirmar Chip" }}
+        />
         <Stack.Screen name="existencia" options={{ title: "Existencias" }} />
         <Stack.Screen name="planillas" options={{ title: "Planillas" }} />
         <Stack.Screen
@@ -47,6 +50,6 @@ export default function RootLayout() {
         />
       </Stack>
       <StatusBar style="auto" />
-    </ThemeProvider>
+    </>
   );
 }

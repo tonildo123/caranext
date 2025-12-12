@@ -1,27 +1,93 @@
 import BackgroundCaranext from "@/components/background-caranext";
+import ModalScanchip from "@/components/ScanComponent/ModalScanchip";
 import { ThemedText } from "@/components/themed-text";
-import { COLOR_BLANCO, COLOR_GRIS_ICONO, COLOR_NARANJA, COLOR_ROJO_CORTE, COLOR_ROJO_TEXTO } from "@/constants/theme";
-import { useRouter } from "expo-router";
 import {
+  COLOR_BLANCO,
+  COLOR_GRIS_ICONO,
+  COLOR_NARANJA,
+  COLOR_ROJO_CORTE,
+  COLOR_ROJO_TEXTO,
+} from "@/constants/theme";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  Alert,
   Dimensions,
   Image,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import { BleManager } from "react-native-ble-plx";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const screenHeight = Dimensions.get("window").height;
 
 export default function HomeScreen() {
   const router = useRouter();
+  // const { isConnected } = useEnable();
+  const isConnected = true;
+  const [showModal, setShowModal] = useState(false);
+  const [bleManager] = useState(() => new BleManager());
+
+  useEffect(() => {
+    return () => {
+      bleManager.destroy();
+    };
+  }, []);
+
+  const handleOpenScanner = () => {
+    if (!isConnected) {
+      Alert.alert(
+        "Bluetooth desactivado",
+        "Para escanear chips necesitas activar el Bluetooth. ¿Deseas activarlo ahora?",
+        [
+          {
+            text: "Cancelar",
+            style: "cancel",
+          },
+          {
+            text: "Activar",
+            onPress: async () => {
+              if (Platform.OS === "android") {
+                try {
+                  await bleManager.enable();
+                  setTimeout(() => {
+                    setShowModal(true);
+                  }, 1000);
+                } catch (error) {
+                  console.error("Error al activar Bluetooth:", error);
+                  Alert.alert(
+                    "Error",
+                    "No se pudo activar el Bluetooth. Por favor, actívalo manualmente desde Configuración."
+                  );
+                }
+              } else {
+                Alert.alert(
+                  "Configuración",
+                  "Por favor, activa el Bluetooth desde Configuración de iOS."
+                );
+              }
+            },
+          },
+        ]
+      );
+    } else {
+      console.log("es true");
+      setShowModal(true);
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
 
   return (
     <SafeAreaView style={styles.screen}>
       <BackgroundCaranext />
 
       <View style={styles.contentContainer}>
-        {/* <ThemedText style={styles.logoTitle}>Caranext</ThemedText> */}
         <Image
           source={require("../assets/images/logo-caranext2.png")}
           style={styles.logoImage}
@@ -58,7 +124,6 @@ export default function HomeScreen() {
 
           <View style={styles.caravanaImagePlaceholder}>
             <ThemedText style={{ fontSize: 50 }}>🏷️</ThemedText>
-            {/* En la app real, iría: <Image source={require('./ruta/caravana.png')} style={...} /> */}
           </View>
         </View>
 
@@ -69,7 +134,7 @@ export default function HomeScreen() {
         <View style={styles.buttonsIconRow}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => router.push("/escanear")}
+            onPress={handleOpenScanner}
           >
             <ThemedText style={styles.iconText}>📶</ThemedText>
             <ThemedText style={styles.iconLabel}>Escanear</ThemedText>
@@ -94,11 +159,20 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.configContainer}>
+        <TouchableOpacity
+          style={styles.configContainer}
+          onPress={() => router.push("/configuracion")}
+        >
           <ThemedText style={styles.configIcon}>⚙️</ThemedText>
           <ThemedText style={styles.configLabel}>Configuración</ThemedText>
-        </View>
+        </TouchableOpacity>
       </View>
+
+      <ModalScanchip
+        showModal={showModal}
+        closeModal={closeModal}
+        idPlanilla={`PLAN-${Date.now()}`}
+      />
     </SafeAreaView>
   );
 }
